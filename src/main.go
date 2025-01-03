@@ -21,9 +21,8 @@ func init() {
 
 func main() {
 	flag.Parse()
-	server.Announce(version)
 	server.Enrol(schools)
-	err := server.Configure()
+	err := server.Configure(version)
 	if err != nil {
 		logger.Fatal(err)
 	}

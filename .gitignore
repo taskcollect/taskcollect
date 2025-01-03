@@ -1,4 +1,5 @@
 cfg/user/
+log/
 prg/
 tmp/
 **/.DS_store

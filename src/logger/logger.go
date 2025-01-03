@@ -37,7 +37,7 @@ func UseConfigFile(logPath string) error {
 		return errors.New(err, "failed to create directory")
 	}
 
-	logFileName = filepath.Join(logPath, time.Now().Format("2006-01-02_150405")+".log")
+	logFileName = filepath.Join(logPath, time.Now().Format("20060102_150405")+".log")
 	logFile, err := os.OpenFile(logFileName, os.O_CREATE|os.O_APPEND|os.O_RDWR, 0666)
 	if err != nil {
 		return errors.New(err, "could not open log file")

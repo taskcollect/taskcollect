@@ -204,36 +204,36 @@ func assetHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		fullPath := path.Join(respath, "icons", fileStr)
+		fullPath := path.Join(resdir, "icons", fileStr)
 		dispatchAsset(w, fullPath, mimeType)
 
 	} else if res == "/wordmark.svg" {
 		w.Header().Set("Cache-Control", "max-age=3600")
-		fullPath := path.Join(respath, "brand/wordmark.svg")
+		fullPath := path.Join(resdir, "brand/wordmark.svg")
 		dispatchAsset(w, fullPath, "image/svg+xml")
 
 	} else if res == "/manifest.webmanifest" {
-		fullPath := path.Join(respath, "manifest.webmanifest")
+		fullPath := path.Join(resdir, "manifest.webmanifest")
 		dispatchAsset(w, fullPath, "application/json")
 
 	} else if res == "/styles.css" {
 		//w.Header().Set("Cache-Control", "max-age=3600")
-		fullPath := path.Join(respath, "styles.css")
+		fullPath := path.Join(resdir, "styles.css")
 		dispatchAsset(w, fullPath, "text/css")
 
 	} else if res == "/script.js" {
 		w.Header().Set("Cache-Control", "max-age=3600")
-		fullPath := path.Join(respath, "script.js")
+		fullPath := path.Join(resdir, "script.js")
 		dispatchAsset(w, fullPath, "text/javascript")
 
 	} else if res == "/mainfont.woff2" {
 		w.Header().Set("Cache-Control", "max-age=259200")
-		fullPath := path.Join(respath, "fonts/lato/mainfont.woff2")
+		fullPath := path.Join(resdir, "fonts/lato/mainfont.woff2")
 		dispatchAsset(w, fullPath, "font/woff2")
 
 	} else if res == "/navfont.woff2" {
 		w.Header().Set("Cache-Control", "max-age=259200")
-		fullPath := path.Join(respath, "fonts/redhat/navfont.woff2")
+		fullPath := path.Join(resdir, "fonts/redhat/navfont.woff2")
 		dispatchAsset(w, fullPath, "font/woff2")
 
 	} else {
@@ -576,7 +576,7 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if res == "/favicon.ico" {
-		fullPath := path.Join(respath, "/icons/favicon.ico")
+		fullPath := path.Join(resdir, "/icons/favicon.ico")
 		dispatchAsset(w, fullPath, "text/plain")
 	} else if !validAuth {
 		// User is not logged in (and is not on login page)

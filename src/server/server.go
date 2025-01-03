@@ -1,9 +1,7 @@
 package server
 
 import (
-	"encoding/json"
 	"html/template"
-	"io"
 	"io/fs"
 	"net/http"
 	"os"
@@ -12,89 +10,55 @@ import (
 
 	"git.sr.ht/~kvo/go-std/errors"
 	"git.sr.ht/~kvo/go-std/slices"
+	"github.com/BurntSushi/toml"
 
 	"main/logger"
 	"main/site"
 )
 
 var (
+	cfgdir    string
 	creds     Creds
-	respath   string
+	logdir    string
+	resdir    string
 	schools   = make(map[string]*site.Mux)
 	templates *template.Template
 )
 
-func Announce(version string) {
+type Config struct {
+	SaveLogs bool `toml:"save-logs"`
+}
+
+func announce(version string) {
 	logger.Info("Running %s", version)
 }
 
-// TODO: refactor
-type config struct {
-	Logging loggingConfig `json:"logging"`
-}
-
-// TODO: refactor
-type loggingConfig struct {
-	UseLogFile bool `json:"useLogFile"`
-	//LogFileOptions logFileOptions `json:"logFileOptions"`
-}
-
-// TODO: refactor
-func getConfig(cfgPath string) (config, error) {
-	// gets stuff from config.json
-
+func loadcfg(cfgpath string) error {
 	// Default config
-	cfg := config{
-		loggingConfig{
-			UseLogFile: false,
-		},
+	cfg := Config{
+		SaveLogs: false,
 	}
-
-	jsonFile, err := os.OpenFile(cfgPath, os.O_RDONLY|os.O_CREATE, 0644)
+	file, err := os.Open(cfgpath)
 	if err != nil {
-		return cfg, errors.New(err, "failed to open config.json")
+		// user has missing (and thus, default) config
+		return nil
 	}
-
-	b, err := io.ReadAll(jsonFile)
+	defer file.Close()
+	_, err = toml.NewDecoder(file).Decode(&cfg)
 	if err != nil {
-		return cfg, errors.New(err, "failed to read config.json")
+		return errors.New(err, "cannot parse server config: %s", cfgpath)
 	}
-
-	err = jsonFile.Close()
-	if err != nil {
-		return cfg, errors.New(err, "failed to close config.json")
-	}
-
-	jsonFile, err = os.OpenFile(cfgPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0622)
-	if err != nil {
-		return cfg, errors.New(err, "failed to open config.json")
-	}
-	defer jsonFile.Close()
-
-	if len(b) > 0 {
-		err = json.Unmarshal(b, &cfg)
+	if cfg.SaveLogs {
+		err = logger.UseConfigFile(logdir)
 		if err != nil {
-			return cfg, errors.New(err, "failed to unmarshal config.json")
+			return errors.Wrap(err)
 		}
-	} else {
-		logger.Info("Using default configuration settings. These can be edited in the config.json file")
 	}
-
-	rawJson, err := json.MarshalIndent(cfg, "", "\t")
-	if err != nil {
-		return config{}, errors.New(err, "failed to marshal config.json")
-	}
-
-	_, err = jsonFile.Write(rawJson)
-	if err != nil {
-		return cfg, errors.New(err, "failed to write to config.json")
-	}
-
-	return cfg, nil
+	return nil
 }
 
-func loadTmpl(respath string) error {
-	tmplPath := path.Join(respath, "templates")
+func loadtmpl(resdir string) error {
+	tmplPath := path.Join(resdir, "templates")
 	err := os.MkdirAll(tmplPath, os.ModePerm)
 	if err != nil {
 		return errors.Wrap(err)
@@ -155,34 +119,23 @@ func loadTmpl(respath string) error {
 	return nil
 }
 
-func Configure() error {
+func Configure(version string) error {
 	creds.Tokens = make(map[string]site.Uid)
 	creds.Users = make(map[site.Uid]site.User)
-
 	execpath, err := os.Executable()
 	if err != nil {
 		logger.Fatal(errors.New(err, "cannot get path to executable"))
 	}
-	respath = path.Join(path.Dir(execpath), "../../../res/")
-	config := path.Join(respath, "config.json")
-
-	// TODO: refactor
-	cfg, err := getConfig(config)
-	if err != nil {
-		logger.Error(errors.New(err, "Cannot read config file:"))
-		logger.Warn("Resorting to default configuration settings...")
+	resdir = path.Join(path.Dir(execpath), "../../../res/")
+	logdir = path.Join(path.Dir(execpath), "../../../log/")
+	cfgdir = path.Join(path.Dir(execpath), "../../../cfg/")
+	cfgpath := path.Join(cfgdir, "server.cfg")
+	announce(version)
+	if err := loadcfg(cfgpath); err != nil {
+		logger.Error(err)
+		logger.Warn("Resorting to default configuration...")
 	}
-	if cfg.Logging.UseLogFile {
-		logPath := path.Join(respath, "logs")
-		err = logger.UseConfigFile(logPath)
-		if err != nil {
-			return errors.New(err, "Log file was not set up successfully")
-		}
-		logger.Info("Log file set up successfully")
-	}
-
-	err = loadTmpl(respath)
-	if err != nil {
+	if err := loadtmpl(resdir); err != nil {
 		return errors.New(err, "cannot load HTML templates")
 	}
 	logger.Info("Successfully loaded HTML templates")
@@ -190,8 +143,8 @@ func Configure() error {
 }
 
 func Run(tls bool) error {
-	cert := path.Join(respath, "cert.pem")
-	key := path.Join(respath, "key.pem")
+	cert := path.Join(resdir, "cert.pem")
+	key := path.Join(resdir, "key.pem")
 
 	mux := http.NewServeMux()
 
