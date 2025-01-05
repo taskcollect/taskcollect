@@ -2,6 +2,7 @@ package myadelaide
 
 import (
 	"encoding/json"
+	"fmt"
 	"main/site"
 	"math"
 	"net/http"
@@ -146,7 +147,7 @@ func semester(user site.User) ([]site.Lesson, error) {
 				Class:   lesson.SubjectDescription,
 				Teacher: lesson.Type,
 				Notice:  "",
-				Room:    lesson.Location + " " + lesson.Room + " " + lesson.RoomDescription,
+				Room:    fmt.Sprintf("%s (%s)", lesson.Room, lesson.Location),
 			})
 		}
 	}
@@ -220,12 +221,12 @@ func weeks(user site.User, deltas ...int) ([]site.Lesson, error) {
 		}
 
 		for _, lesson := range week.Data.Query.Rows {
-			startStr := lesson.Date + lesson.StartTime
+			startStr := lesson.Date + " " + lesson.StartTime
 			start, err := time.ParseInLocation("02 Jan 2006 15.04", startStr, user.Timezone)
 			if err != nil {
 				return nil, errors.New(err, "cannot parse date")
 			}
-			endStr := lesson.Date + lesson.EndTime
+			endStr := lesson.Date + " " + lesson.EndTime
 			end, err := time.ParseInLocation("02 Jan 2006 15.04", endStr, user.Timezone)
 			if err != nil {
 				return nil, errors.New(err, "cannot parse date")
@@ -236,7 +237,7 @@ func weeks(user site.User, deltas ...int) ([]site.Lesson, error) {
 				Class:   lesson.SubjectDescription,
 				Teacher: lesson.Type,
 				Notice:  "",
-				Room:    lesson.Location + " " + lesson.Room + " " + lesson.RoomDescription,
+				Room:    fmt.Sprintf("%s (%s)", lesson.Room, lesson.Location),
 			})
 		}
 	}

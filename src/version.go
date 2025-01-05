@@ -1,3 +1,3 @@
 package main
 
-const version = "TaskCollect v0.0.0 (build 77324bc8de8ff3700f1e7b1d1ed7039ad00b65ea)"
+const version = "TaskCollect v0.0.0 (build 287149b3ea7ac3593421b557d448e02fcf797229)"

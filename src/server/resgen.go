@@ -443,7 +443,7 @@ func genRes(resURL string, user site.User) (pageData, error) {
 
 		school, ok := schools[user.School]
 		if !ok {
-			return statusServerErrorData, errors.New(nil, "unsupported platform")
+			return pageData{}, errors.New(nil, "unsupported platform")
 		}
 		tasks, err := school.Graded(user)
 		if err != nil {

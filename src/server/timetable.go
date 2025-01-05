@@ -86,7 +86,7 @@ func imprint(dest *image.RGBA, text string, face font.Face, pos image.Point) {
 // TODO: add ability to scale text within blocks if block height is less than min height
 func mkblock(canvas *image.RGBA, lesson site.Lesson, day, y, h int) error {
 	bg := colors[lesson.Class]
-	x, w := 20+(day*227), 187
+	x, w := 10+(day*227), 207
 	block := image.NewRGBA(
 		image.Rectangle{
 			image.Point{0, 0},
@@ -136,7 +136,7 @@ func mkblock(canvas *image.RGBA, lesson site.Lesson, day, y, h int) error {
 // TODO: scale y and h differently depending on day start/end times
 func mkblocks(canvas *image.RGBA, lessons []site.Lesson, monday time.Time, days int) error {
 	minPerDay := float64(600)
-	pxPerMin := float64(800-80) / minPerDay
+	pxPerMin := float64(800-60) / minPerDay
 	for _, lesson := range lessons {
 		day := since(monday, lesson.Start)
 		if day > days || lesson.Start.Before(monday) {
@@ -144,8 +144,8 @@ func mkblocks(canvas *image.RGBA, lessons []site.Lesson, monday time.Time, days 
 		}
 		ymins := (lesson.Start.Hour()-8)*60 + lesson.Start.Minute()
 		hmins := lesson.End.Sub(lesson.Start).Minutes()
-		y := int(float64(ymins)*pxPerMin) + 60
-		h := int(float64(hmins) * pxPerMin)
+		y := int(float64(ymins)*pxPerMin) + 50
+		h := int(float64(hmins) * pxPerMin) - 1
 		err := mkblock(canvas, lesson, day, y, h)
 		if err != nil {
 			return err

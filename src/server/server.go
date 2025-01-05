@@ -34,20 +34,21 @@ func announce(version string) {
 }
 
 func loadcfg(cfgpath string) error {
-	// Default config
+	// default config
 	cfg := Config{
 		SaveLogs: false,
 	}
 	file, err := os.Open(cfgpath)
 	if err != nil {
 		// user has missing (and thus, default) config
-		return nil
+		goto configure
 	}
 	defer file.Close()
 	_, err = toml.NewDecoder(file).Decode(&cfg)
 	if err != nil {
 		return errors.New(err, "cannot parse server config: %s", cfgpath)
 	}
+configure:
 	if cfg.SaveLogs {
 		err = logger.UseConfigFile(logdir)
 		if err != nil {

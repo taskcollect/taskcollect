@@ -126,7 +126,7 @@ func fetch(link, username, password, key string) (string, string, error) {
 	// A persistent cookie jar is required for the entire process.
 	// Do NOT forget to keep pretending to be one of the latest versions of Firefox!
 	// TODO: Fetch a random valid user agent from a curated list.
-	browser := "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/127.0"
+	browser := "Mozilla/5.0 (X11; Linux x86_64; rv:132.0) Gecko/20100101 Firefox/132.0"
 
 	myadelaideUrl := url.URL{
 		Scheme: "https",

@@ -15,7 +15,6 @@ type pageData struct {
 
 type headData struct {
 	Title string
-	//CssFiles []string
 }
 
 type bodyData struct {
@@ -73,7 +72,7 @@ type ttLesson struct {
 	BGColor       string
 }
 
-// Resources (/res page)
+// Resources list
 
 type resData struct {
 	Heading string
@@ -93,7 +92,7 @@ type resItem struct {
 	URL      string
 }
 
-// Resource (single resource)
+// Individual resource
 
 type resourceData struct {
 	Name        string
@@ -107,7 +106,7 @@ type resourceData struct {
 	Id          string
 }
 
-// Tasks
+// Tasks list
 
 type taskItem struct {
 	Id       string
@@ -131,7 +130,7 @@ type tasksData struct {
 	TaskTypes []taskType
 }
 
-// Task (single task)
+// Individual task
 
 type taskData struct {
 	Id           string
@@ -175,47 +174,6 @@ var loginPageData = pageData{
 	Body: bodyData{
 		LoginData: loginData{
 			Failed: false,
-		},
-	},
-}
-
-// TODO: Create a function for fetching these status codes then constructing the pageData
-
-var statusNotFoundData = pageData{
-	PageType: "error",
-	Head: headData{
-		Title: "404 Not Found",
-	},
-	Body: bodyData{
-		ErrorData: errData{
-			Heading: "404 Not Found",
-			Message: "The requested resource was not found on the server.",
-		},
-	},
-}
-
-var statusServerErrorData = pageData{
-	PageType: "error",
-	Head: headData{
-		Title: "500 Internal Server Error",
-	},
-	Body: bodyData{
-		ErrorData: errData{
-			Heading: "500 Internal Server Error",
-			Message: "The server encountered an unexpected error and cannot continue.",
-		},
-	},
-}
-
-var statusForbiddenData = pageData{
-	PageType: "error",
-	Head: headData{
-		Title: "403 Forbidden",
-	},
-	Body: bodyData{
-		ErrorData: errData{
-			Heading: "403 Forbidden",
-			Message: "You do not have permission to access this resource.",
 		},
 	},
 }
