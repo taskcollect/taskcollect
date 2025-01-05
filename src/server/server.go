@@ -39,16 +39,13 @@ func loadcfg(cfgpath string) error {
 		SaveLogs: false,
 	}
 	file, err := os.Open(cfgpath)
-	if err != nil {
-		// user has missing (and thus, default) config
-		goto configure
+	if err == nil {
+		defer file.Close()
+		_, err = toml.NewDecoder(file).Decode(&cfg)
+		if err != nil {
+			return errors.New(err, "cannot parse server config: %s", cfgpath)
+		}
 	}
-	defer file.Close()
-	_, err = toml.NewDecoder(file).Decode(&cfg)
-	if err != nil {
-		return errors.New(err, "cannot parse server config: %s", cfgpath)
-	}
-configure:
 	if cfg.SaveLogs {
 		err = logger.UseConfigFile(logdir)
 		if err != nil {
