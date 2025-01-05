@@ -471,31 +471,24 @@ func resHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
-	res := r.URL.EscapedPath()
-	validAuth := true
-
 	user, err := creds.LookupToken(r.Header.Get("Cookie"))
-	if err != nil {
-		validAuth = false
-	}
-
-	if res == "/favicon.ico" {
+	if r.URL.EscapedPath() == "/favicon.ico" {
 		fullPath := path.Join(resdir, "/icons/favicon.ico")
 		dispatchAsset(w, fullPath, "text/plain")
-	} else if !validAuth {
+	} else if err != nil {
 		// user not logged in (and not on login page)
 		redirect := "/login?redirect=" + url.QueryEscape(r.URL.String())
 		w.Header().Set("Location", redirect)
 		w.WriteHeader(302)
-	} else if validAuth && res == "/timetable.png" {
+	} else if err == nil && r.URL.EscapedPath() == "/timetable.png" {
 		err := TimetablePNG(user, w)
 		if err != nil {
 			logger.Error(err)
 		}
-	} else if validAuth && res == "/" {
+	} else if err == nil && r.URL.EscapedPath() == "/" {
 		w.Header().Set("Location", "/timetable")
 		w.WriteHeader(302)
-	} else if validAuth && res != "/" {
+	} else if err == nil && r.URL.EscapedPath() != "/" {
 		// requested path has no associated handler
 		alert(w, user, nil, 404)
 	}
